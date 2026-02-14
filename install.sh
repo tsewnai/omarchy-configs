@@ -4,6 +4,12 @@
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# Back up entire .config before making changes
+BACKUP_DIR="$HOME/.config.backup-$(date +%Y%m%d-%H%M%S)"
+echo "Backing up ~/.config -> $BACKUP_DIR"
+cp -a "$HOME/.config" "$BACKUP_DIR"
+echo "Backup complete."
+
 CONFIGS=(
     hypr
     waybar
