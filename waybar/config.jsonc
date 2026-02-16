@@ -189,10 +189,10 @@
       },
       "title-len": 25,
       "artist-len": 15,
-      "on-click": "playerctl next",
-      "on-click-right": "playerctl play-pause",
-      "tooltip-format": "{title} - {artist} ({album})\nClick: next track | Right-click: play/pause",
-      "tooltip-format-paused": "{title} - {artist} ({album}) [Paused]\nClick: next track | Right-click: play/pause"
+      "on-click": "playerctl play-pause",
+      "on-click-right": "playerctl next",
+      "tooltip-format": "{title} - {artist} ({album})\nClick: play/pause | Right-click: next",
+      "tooltip-format-paused": "{title} - {artist} ({album}) [Paused]\nClick: play/pause | Right-click: next"
     },
     "custom/weather": {
       "exec": "~/.config/waybar/scripts/weather.sh",
