@@ -14,6 +14,7 @@
     "modules-right": [
       "custom/weather",
       "group/tray-expander",
+      "custom/bt-battery",
       "bluetooth",
       "network",
       "pulseaudio",
@@ -66,7 +67,7 @@
       "on-click-right": "alacritty"
     },
     "clock": {
-      "format": "{:L%A %H:%M}",
+      "format": "{:L%A %I:%M %p }",
       "format-alt": "{:L%d %B W%V %Y}",
       "tooltip": true,
       "tooltip-format": "<tt><small>{calendar}</small></tt>",
@@ -128,6 +129,12 @@
       "format-no-controller": "",
       "tooltip-format": "Devices connected: {num_connections}",
       "on-click": "omarchy-launch-bluetooth"
+    },
+    "custom/bt-battery": {
+      "exec": "~/.config/waybar/scripts/bt-battery.sh",
+      "return-type": "json",
+      "interval": 30,
+      "tooltip": true
     },
     "pulseaudio": {
       "format": "{icon}",

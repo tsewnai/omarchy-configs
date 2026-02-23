@@ -111,3 +111,22 @@ tooltip {
 #custom-weather {
   margin: 0 7.5px;
 }
+
+#custom-bt-battery {
+  margin: 0 7.5px;
+  opacity: 0.85;
+}
+
+#custom-bt-battery.warning {
+  color: #f9e2af;
+}
+
+#custom-bt-battery.critical {
+  color: #f38ba8;
+}
+
+#custom-bt-battery.empty {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
