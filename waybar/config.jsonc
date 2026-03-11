@@ -10,7 +10,7 @@
     "margin-right": 500,
     "output": ["eDP-1", "DP-6", "DP-7"],
     "modules-left": ["custom/omarchy", "hyprland/workspaces"],
-    "modules-center": ["clock", "mpris", "custom/update", "custom/voxtype", "custom/screenrecording-indicator"],
+    "modules-center": ["clock", "mpris", "custom/update", "custom/voxtype", "custom/screenrecording-indicator", "custom/idle-indicator", "custom/notification-silencing-indicator"],
     "modules-right": [
       "custom/weather",
       "group/tray-expander",
@@ -145,6 +145,7 @@
       "format-muted": "",
       "format-icons": {
         "headphone": "",
+      "headset": "",
         "default": ["", "", ""]
       }
     },
@@ -206,6 +207,18 @@
       "interval": 900,
       "tooltip-format": "Weather (updates every 15 min)"
     },
+  "custom/idle-indicator": {
+    "on-click": "omarchy-toggle-idle",
+    "exec": "$OMARCHY_PATH/default/waybar/indicators/idle.sh",
+    "signal": 9,
+    "return-type": "json"
+  },
+  "custom/notification-silencing-indicator": {
+    "on-click": "omarchy-toggle-notification-silencing",
+    "exec": "$OMARCHY_PATH/default/waybar/indicators/notification-silencing.sh",
+    "signal": 10,
+    "return-type": "json"
+  },
     "tray": {
       "icon-size": 12,
       "spacing": 17
@@ -278,6 +291,7 @@
       "format-muted": "",
       "format-icons": {
         "headphone": "",
+      "headset": "",
         "default": ["", "", ""]
       }
     }

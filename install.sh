@@ -20,6 +20,7 @@ CONFIGS=(
     walker
     git
     omarchy
+    nvim
 )
 
 for config in "${CONFIGS[@]}"; do
