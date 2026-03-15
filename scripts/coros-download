@@ -188,7 +188,7 @@ for entry in "${ALL_ACTIVITIES[@]}"; do
     if $RESUME && [[ -f "$dest" && -s "$dest" ]]; then
         # -s checks that the file is non-empty; avoids keeping broken partial downloads
         log "  SKIP  $filename (already exists)"
-        (( skipped++ ))
+        (( skipped++ )) || true
         continue
     fi
 
@@ -196,7 +196,7 @@ for entry in "${ALL_ACTIVITIES[@]}"; do
     DL_URL="$API_BASE/activity/detail/download?labelId=${label_id}&sportType=${sport_type}&fileType=4"
     DL_RESP="$(api_post "$DL_URL" "{}" "$ACCESS_TOKEN")" || {
         err "  FAIL  $filename — could not get download URL"
-        (( failed++ ))
+        (( failed++ )) || true
         continue
     }
 
@@ -204,14 +204,14 @@ for entry in "${ALL_ACTIVITIES[@]}"; do
     result_code="$(jq -r '.result' <<< "$DL_RESP")"
     if [[ "$result_code" != "0000" ]]; then
         err "  FAIL  $filename — API result=$result_code: $(jq -r '.message // ""' <<< "$DL_RESP")"
-        (( failed++ ))
+        (( failed++ )) || true
         continue
     fi
 
     file_url="$(jq -r '.data.fileUrl // empty' <<< "$DL_RESP")"
     if [[ -z "$file_url" ]]; then
         err "  FAIL  $filename — empty fileUrl in response"
-        (( failed++ ))
+        (( failed++ )) || true
         continue
     fi
 
@@ -219,11 +219,11 @@ for entry in "${ALL_ACTIVITIES[@]}"; do
     # -L follows redirects, -o writes to file, --silent suppresses progress bar
     if curl -sSL -o "$dest" "$file_url"; then
         log "  OK    $filename"
-        (( downloaded++ ))
+        (( downloaded++ )) || true
     else
         err "  FAIL  $filename — curl download failed"
         rm -f "$dest"   # remove partial file so resume can retry it
-        (( failed++ ))
+        (( failed++ )) || true
     fi
 done
 

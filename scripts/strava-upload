@@ -1,0 +1,261 @@
+#!/usr/bin/env bash
+# strava-upload — Upload FIT files to Strava via the API
+# Dependencies: curl, jq, python3
+# Config: ~/.config/strava-upload/config  (STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET)
+# Usage: strava-upload [options] [file.fit ...]
+#   -d  Directory of FIT files (default: ~/coros-activities)
+#   -r  Re-upload files that were already uploaded (default: skip)
+#   -n  Dry run — list files that would be uploaded, do nothing
+#   -h  Show this help
+
+set -euo pipefail
+
+CONFIG_FILE="$HOME/.config/strava-upload/config"
+TOKEN_FILE="$HOME/.config/strava-upload/tokens.json"
+UPLOAD_LOG="$HOME/.config/strava-upload/uploaded.log"
+INPUT_DIR="$HOME/coros-activities"
+CALLBACK_PORT=8765
+RESUME=true
+DRY_RUN=false
+
+# ── argument parsing ───────────────────────────────────────────────────────────
+usage() {
+    grep '^#' "$0" | grep -v '#!/' | sed 's/^# \{0,1\}//'
+    exit 0
+}
+
+while getopts ":d:rnh" opt; do
+    case $opt in
+        d) INPUT_DIR="$OPTARG" ;;
+        r) RESUME=false ;;
+        n) DRY_RUN=true ;;
+        h) usage ;;
+        :) echo "ERROR: option -$OPTARG requires an argument." >&2; exit 1 ;;
+        \?) echo "ERROR: unknown option -$OPTARG." >&2; exit 1 ;;
+    esac
+done
+shift $(( OPTIND - 1 ))
+EXPLICIT_FILES=("$@")
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+log() { echo "[$(date +%H:%M:%S)] $*"; }
+err() { echo "[$(date +%H:%M:%S)] ERROR: $*" >&2; }
+die() { err "$*"; exit 1; }
+
+for cmd in curl jq python3; do
+    command -v "$cmd" &>/dev/null || die "'$cmd' is required but not found."
+done
+
+# ── load credentials ──────────────────────────────────────────────────────────
+[[ -f "$CONFIG_FILE" ]] || die "Config file not found: $CONFIG_FILE
+Create it with:
+  mkdir -p ~/.config/strava-upload
+  echo 'STRAVA_CLIENT_ID=your_id' >> ~/.config/strava-upload/config
+  echo 'STRAVA_CLIENT_SECRET=your_secret' >> ~/.config/strava-upload/config
+  chmod 600 ~/.config/strava-upload/config"
+
+# source the config file to load CLIENT_ID and CLIENT_SECRET as shell variables
+# shellcheck source=/dev/null
+source "$CONFIG_FILE"
+
+[[ -n "${STRAVA_CLIENT_ID:-}"     ]] || die "STRAVA_CLIENT_ID not set in $CONFIG_FILE"
+[[ -n "${STRAVA_CLIENT_SECRET:-}" ]] || die "STRAVA_CLIENT_SECRET not set in $CONFIG_FILE"
+
+mkdir -p "$(dirname "$TOKEN_FILE")"
+touch "$UPLOAD_LOG"
+
+# ── OAuth ──────────────────────────────────────────────────────────────────────
+save_tokens() {
+    # $1 = JSON token response from Strava
+    # Extract only the three fields we need and write them with chmod 600
+    jq '{access_token: .access_token, refresh_token: .refresh_token, expires_at: .expires_at}' \
+        <<< "$1" > "$TOKEN_FILE"
+    chmod 600 "$TOKEN_FILE"
+}
+
+authorize() {
+    log "No valid tokens found — starting OAuth authorization …"
+
+    local auth_url="https://www.strava.com/oauth/authorize\
+?client_id=${STRAVA_CLIENT_ID}\
+&response_type=code\
+&redirect_uri=http://localhost:${CALLBACK_PORT}/callback\
+&approval_prompt=force\
+&scope=activity:write"
+
+    # Try xdg-open (Linux) then open (macOS), fall back to printing the URL
+    if command -v xdg-open &>/dev/null; then
+        xdg-open "$auth_url" 2>/dev/null &
+    elif command -v open &>/dev/null; then
+        open "$auth_url" &
+    else
+        echo
+        echo "  Open this URL in your browser:"
+        echo "  $auth_url"
+        echo
+    fi
+
+    log "Waiting for authorization callback on port $CALLBACK_PORT …"
+
+    # Spin up a one-shot Python HTTP server to catch the redirect and extract the code.
+    # The heredoc (<<'PYEOF') passes the Python script to python3 on stdin.
+    # We capture its stdout (the auth code) into CODE.
+    CODE="$(python3 - "$CALLBACK_PORT" <<'PYEOF'
+import http.server, urllib.parse, sys
+
+port = int(sys.argv[1])
+code = None
+
+class Handler(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *args): pass  # suppress default request logging
+    def do_GET(self):
+        global code
+        params = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        if 'code' in params:
+            code = params['code'][0]
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.end_headers()
+            self.wfile.write(b'<h2>Authorized! You can close this tab.</h2>')
+        else:
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b'<h2>Error: no code in callback.</h2>')
+
+import socketserver
+with socketserver.TCPServer(('localhost', port), Handler) as httpd:
+    httpd.handle_request()
+
+if code:
+    print(code)
+else:
+    sys.exit(1)
+PYEOF
+)"
+
+    [[ -z "$CODE" ]] && die "No authorization code received."
+
+    log "Got authorization code, exchanging for tokens …"
+    TOKEN_RESP="$(curl -sS --fail-with-body -X POST https://www.strava.com/oauth/token \
+        -d "client_id=${STRAVA_CLIENT_ID}" \
+        -d "client_secret=${STRAVA_CLIENT_SECRET}" \
+        -d "code=${CODE}" \
+        -d "grant_type=authorization_code")"
+
+    save_tokens "$TOKEN_RESP"
+    log "Tokens saved to $TOKEN_FILE"
+}
+
+get_access_token() {
+    if [[ ! -f "$TOKEN_FILE" ]]; then
+        authorize
+    fi
+
+    local expires_at now refresh_token access_token
+    expires_at="$(jq -r '.expires_at' "$TOKEN_FILE")"
+    now="$(date +%s)"
+    access_token="$(jq -r '.access_token' "$TOKEN_FILE")"
+    refresh_token="$(jq -r '.refresh_token' "$TOKEN_FILE")"
+
+    # Refresh if token expires within the next 5 minutes (300 seconds)
+    if (( now >= expires_at - 300 )); then
+        log "Token expired or expiring soon, refreshing …"
+        TOKEN_RESP="$(curl -sS --fail-with-body -X POST https://www.strava.com/oauth/token \
+            -d "client_id=${STRAVA_CLIENT_ID}" \
+            -d "client_secret=${STRAVA_CLIENT_SECRET}" \
+            -d "refresh_token=${refresh_token}" \
+            -d "grant_type=refresh_token")"
+        save_tokens "$TOKEN_RESP"
+        access_token="$(jq -r '.access_token' "$TOKEN_FILE")"
+    fi
+
+    echo "$access_token"
+}
+
+# ── upload ─────────────────────────────────────────────────────────────────────
+already_uploaded() {
+    # grep -qF: quiet (-q), fixed string (-F, no regex), search the log for exact filename
+    grep -qF "$(basename "$1")" "$UPLOAD_LOG" 2>/dev/null
+}
+
+upload_file() {
+    local file="$1"
+    local token="$2"
+    local filename
+    filename="$(basename "$file")"
+
+    if $RESUME && already_uploaded "$file"; then
+        log "  SKIP  $filename (already uploaded)"
+        return 0
+    fi
+
+    if $DRY_RUN; then
+        log "  DRY   $filename"
+        return 0
+    fi
+
+    # -F sends multipart/form-data fields; @path tells curl to read the file from disk
+    local resp
+    resp="$(curl -sS --fail-with-body \
+        -H "Authorization: Bearer $token" \
+        -F "data_type=fit" \
+        -F "file=@${file}" \
+        https://www.strava.com/api/v3/uploads)"
+
+    local upload_id error
+    upload_id="$(jq -r '.id // empty' <<< "$resp")"
+    error="$(jq -r '.error // empty' <<< "$resp")"
+
+    if [[ -n "$error" ]]; then
+        err "  FAIL  $filename — $error"
+        return 1
+    fi
+
+    if [[ -z "$upload_id" ]]; then
+        err "  FAIL  $filename — unexpected response: $resp"
+        return 1
+    fi
+
+    # Record the filename so future runs skip it
+    echo "$filename" >> "$UPLOAD_LOG"
+    log "  OK    $filename (upload_id=$upload_id)"
+}
+
+# ── main ───────────────────────────────────────────────────────────────────────
+ACCESS_TOKEN="$(get_access_token)"
+
+if [[ ${#EXPLICIT_FILES[@]} -gt 0 ]]; then
+    FILES=("${EXPLICIT_FILES[@]}")
+else
+    # find: search INPUT_DIR for *.fit files, sort by name (chronological given the date prefix)
+    mapfile -t FILES < <(find "$INPUT_DIR" -name "*.fit" | sort)
+fi
+
+[[ ${#FILES[@]} -eq 0 ]] && die "No FIT files found in $INPUT_DIR"
+
+log "Uploading ${#FILES[@]} file(s) …"
+
+uploaded=0
+skipped=0
+failed=0
+
+for f in "${FILES[@]}"; do
+    if $RESUME && already_uploaded "$f"; then
+        (( skipped++ )) || true
+        log "  SKIP  $(basename "$f") (already uploaded)"
+        continue
+    fi
+
+    if upload_file "$f" "$ACCESS_TOKEN"; then
+        $DRY_RUN || (( uploaded++ )) || true
+    else
+        (( failed++ )) || true
+    fi
+done
+
+echo
+log "Done."
+$DRY_RUN && log "  (dry run — nothing was uploaded)"
+log "  Uploaded : $uploaded"
+log "  Skipped  : $skipped  (already uploaded)"
+log "  Failed   : $failed"
