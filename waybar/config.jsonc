@@ -209,7 +209,7 @@
       "interval": 10,
       "signal": 11,
       "on-click": "~/.config/waybar/scripts/todos-toggle.sh",
-      "on-click-right": "omarchy-launch-floating-terminal-with-presentation nvim /home/tsewnai/todos.md",
+      "on-click-right": "omarchy-launch-floating-terminal-with-presentation nvim /home/tsewnai/Documents/vault/todos.md",
       "tooltip": true
     },
     "custom/weather": {

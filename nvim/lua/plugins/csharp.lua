@@ -1,4 +1,26 @@
 return {
+  -- Add Crashdummyy's registry so :MasonInstall roslyn works
+  {
+    "mason-org/mason.nvim",
+    opts = {
+      registries = {
+        "github:mason-org/mason-registry",
+        "github:Crashdummyy/mason-registry",
+      },
+      ensure_installed = { "csharpier" },
+    },
+  },
+
+  -- Format C# files with csharpier on save
+  {
+    "stevearc/conform.nvim",
+    opts = {
+      formatters_by_ft = {
+        cs = { "csharpier" },
+      },
+    },
+  },
+
   -- Disable OmniSharp from the lang.dotnet extra
   {
     "neovim/nvim-lspconfig",
@@ -13,7 +35,15 @@ return {
   {
     "seblj/roslyn.nvim",
     ft = "cs",
-    opts = {},
+    opts = {
+      broad_search = true,
+      cmd = {
+        vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "bin", "roslyn"),
+        "--logLevel=Information",
+        "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.log.get_filename()),
+        "--stdio",
+      },
+    },
   },
 
   -- Close dapui when the debug session disconnects (e.g. process killed externally)

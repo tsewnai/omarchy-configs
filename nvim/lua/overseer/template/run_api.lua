@@ -3,7 +3,7 @@ return {
   builder = function()
     return {
       cmd = { "dotnet" },
-      args = { "run", "--project", "src/WaaS.IntegrationService.Api" },
+      args = { "watch", "run", "--project", "src/WaaS.IntegrationService.Api" },
       components = { "default", { "open_output", direction = "dock", focus = true }, "open_browser_on_ready" },
     }
   end,

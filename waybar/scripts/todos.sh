@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TODO_FILE="$HOME/todos.md"
+TODO_FILE="$HOME/Documents/vault/todos.md"
 
 # Create file if missing
 if [[ ! -f "$TODO_FILE" ]]; then

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TODO_FILE="$HOME/todos.md"
+TODO_FILE="$HOME/Documents/vault/todos.md"
 
 if [[ ! -f "$TODO_FILE" ]]; then
     printf '# Todos\n\n- [ ] My first todo\n' > "$TODO_FILE"
@@ -52,3 +52,9 @@ fi
 
 # Signal waybar to refresh this widget immediately (signal 11 = SIGRTMIN+11)
 pkill -RTMIN+11 waybar
+
+# Sync to GitHub in the background (don't block waybar)
+VAULT="$HOME/Documents/vault"
+git -C "$VAULT" add todos.md && \
+  git -C "$VAULT" commit -m "todos: quick update" && \
+  git -C "$VAULT" push &
