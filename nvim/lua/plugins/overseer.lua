@@ -1,4 +1,9 @@
 return {
   "stevearc/overseer.nvim",
-  opts = {},
+  opts = {
+    strategy = {
+      "jobstart",
+      use_terminal = false,
+    },
+  },
 }

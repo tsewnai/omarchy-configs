@@ -70,7 +70,9 @@ return {
         name = "Attach to Aspire.ApiService (nvim)",
         request = "attach",
         processId = function()
-          return require("dap.utils").pick_process({ filter = "Aspire.ApiService" })
+          return require("dap.utils").pick_process({
+            filter = function(proc) return proc.name:find("Aspire.ApiService/bin") ~= nil end
+          })
         end,
       })
     end,
