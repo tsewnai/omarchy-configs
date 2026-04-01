@@ -12,9 +12,9 @@
 }
 
 window#waybar {
-  background: rgba(26, 31, 46, 0.85);
+  background: @background_alpha;
   border-radius: 14px;
-  border: 1px solid rgba(126, 200, 200, 0.25);
+  border: 1px solid @accent_border;
   padding: 0 4px;
 }
 
@@ -64,8 +64,8 @@ window#waybar {
 }
 
 tooltip {
-  background: rgba(44, 54, 64, 0.95);
-  border: 1px solid @primary;
+  background: @tooltip_bg;
+  border: 1px solid @accent;
   border-radius: 10px;
   padding: 4px 8px;
 }
@@ -94,7 +94,7 @@ tooltip {
 }
 
 #custom-screenrecording-indicator.active {
-  color: #a55555;
+  color: @color1;
 }
 
 #custom-voxtype {
@@ -103,7 +103,7 @@ tooltip {
 }
 
 #custom-voxtype.recording {
-  color: #a55555;
+  color: @color1;
 }
 
 #mpris {
@@ -121,7 +121,7 @@ tooltip {
 }
 
 #custom-todos.pending {
-  color: #f9e2af;
+  color: @color3;
 }
 
 #custom-todos.done {
@@ -134,11 +134,11 @@ tooltip {
 }
 
 #custom-bt-battery.warning {
-  color: #f9e2af;
+  color: @color3;
 }
 
 #custom-bt-battery.critical {
-  color: #f38ba8;
+  color: @color1;
 }
 
 #custom-bt-battery.empty {
@@ -149,5 +149,17 @@ tooltip {
 
 #custom-idle-indicator.active,
 #custom-notification-silencing-indicator.active {
-  color: #a55555;
+  color: @color1;
+}
+
+#custom-notifications {
+  margin: 0 7.5px;
+}
+
+#custom-notifications.has-notifications {
+  color: @accent;
+}
+
+#custom-notifications.empty {
+  opacity: 0.5;
 }
