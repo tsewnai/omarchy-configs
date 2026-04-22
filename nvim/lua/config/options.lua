@@ -4,6 +4,7 @@
 vim.opt.relativenumber = true
 vim.opt.clipboard = "unnamedplus"
 vim.opt.backupcopy = "yes" -- fix Vite HMR: prevents atomic rename that breaks inotify watchers
+vim.opt.scrolloff = 8
 
 -- Prioritize git root over LSP root so Telescope searches from the repo root
 -- instead of the nearest package.json/LSP root (e.g. a vite subdirectory).

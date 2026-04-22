@@ -6,7 +6,7 @@ return {
   },
   opts = {
     adapters = {
-      ["neotest-dotnet"] = {},
+      ["neotest-dotnet"] = { runner = "xunit" },
       ["neotest-vitest"] = {},
     },
   },

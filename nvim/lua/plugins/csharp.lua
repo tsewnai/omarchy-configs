@@ -7,16 +7,15 @@ return {
         "github:mason-org/mason-registry",
         "github:Crashdummyy/mason-registry",
       },
-      ensure_installed = { "csharpier" },
     },
   },
 
-  -- Format C# files with csharpier on save
+  -- Format C# via Roslyn LSP (matches VS Code C# Dev Kit); don't run csharpier
   {
     "stevearc/conform.nvim",
     opts = {
       formatters_by_ft = {
-        cs = { "csharpier" },
+        cs = {},
       },
     },
   },
