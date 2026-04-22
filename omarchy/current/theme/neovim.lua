@@ -1,9 +1,10 @@
 return {
-	{ "rebelot/kanagawa.nvim" },
+	{ "neanias/everforest-nvim" },
 	{
 		"LazyVim/LazyVim",
 		opts = {
-			colorscheme = "kanagawa",
+			colorscheme = "everforest",
+			background = "soft",
 		},
 	},
 }

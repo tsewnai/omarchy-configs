@@ -1,0 +1,19 @@
+#!/bin/bash
+# Recolor tux.png to match the current theme's font_color
+
+HYPRLOCK_THEME=~/.config/omarchy/current/theme/hyprlock.conf
+TUX_SRC=~/.config/hypr/tux.png
+TUX_OUT=~/.config/hypr/tux_colored.png
+
+if [[ ! -f "$HYPRLOCK_THEME" ]] || [[ ! -f "$TUX_SRC" ]]; then
+    exit 0
+fi
+
+# Extract RGB values from rgba(r, g, b, a) format
+FONT_COLOR_LINE=$(grep 'font_color' "$HYPRLOCK_THEME")
+R=$(echo "$FONT_COLOR_LINE" | sed 's/.*rgba(\s*\([0-9]*\)\s*,.*/\1/')
+G=$(echo "$FONT_COLOR_LINE" | sed 's/.*rgba(\s*[0-9]*\s*,\s*\([0-9]*\)\s*,.*/\1/')
+B=$(echo "$FONT_COLOR_LINE" | sed 's/.*rgba(\s*[0-9]*\s*,\s*[0-9]*\s*,\s*\([0-9]*\)\s*,.*/\1/')
+HEX=$(printf "#%02X%02X%02X" "$R" "$G" "$B")
+
+magick "$TUX_SRC" -colorspace gray -fill "$HEX" -tint 100 "$TUX_OUT"
