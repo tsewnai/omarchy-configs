@@ -7,6 +7,7 @@ font-style = Regular
 font-size = 9
 
 # Window
+gtk-single-instance = true
 window-theme = ghostty
 window-padding-x = 14
 window-padding-y = 14
@@ -33,3 +34,6 @@ keybind = super+control+shift+alt+arrow_right=resize_split:right,100
 # Slowdown mouse scrolling
 mouse-scroll-multiplier = 0.95
 
+
+# Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
+async-backend = epoll

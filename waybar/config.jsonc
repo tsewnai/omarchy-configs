@@ -10,10 +10,12 @@
     "margin-right": 500,
     "output": ["eDP-1", "DP-6", "DP-7"],
     "modules-left": ["custom/omarchy", "hyprland/workspaces"],
-    "modules-center": ["clock", "mpris", "custom/update", "custom/voxtype", "custom/screenrecording-indicator"],
+    "modules-center": ["clock", "mpris", "custom/update", "custom/voxtype", "custom/screenrecording-indicator", "custom/idle-indicator", "custom/notification-silencing-indicator", "custom/notifications"],
     "modules-right": [
+      "custom/todos",
       "custom/weather",
       "group/tray-expander",
+      "custom/bt-battery",
       "bluetooth",
       "network",
       "pulseaudio",
@@ -66,7 +68,7 @@
       "on-click-right": "alacritty"
     },
     "clock": {
-      "format": "{:L%A %H:%M}",
+      "format": "{:L%A %I:%M %p }",
       "format-alt": "{:L%d %B W%V %Y}",
       "tooltip": true,
       "tooltip-format": "<tt><small>{calendar}</small></tt>",
@@ -129,6 +131,12 @@
       "tooltip-format": "Devices connected: {num_connections}",
       "on-click": "omarchy-launch-bluetooth"
     },
+    "custom/bt-battery": {
+      "exec": "~/.config/waybar/scripts/bt-battery.sh",
+      "return-type": "json",
+      "interval": 30,
+      "tooltip": true
+    },
     "pulseaudio": {
       "format": "{icon}",
       "on-click": "omarchy-launch-audio",
@@ -138,6 +146,7 @@
       "format-muted": "",
       "format-icons": {
         "headphone": "",
+      "headset": "",
         "default": ["", "", ""]
       }
     },
@@ -189,16 +198,44 @@
       },
       "title-len": 25,
       "artist-len": 15,
-      "on-click": "playerctl next",
-      "on-click-right": "playerctl play-pause",
-      "tooltip-format": "{title} - {artist} ({album})\nClick: next track | Right-click: play/pause",
-      "tooltip-format-paused": "{title} - {artist} ({album}) [Paused]\nClick: next track | Right-click: play/pause"
+      "on-click": "playerctl play-pause",
+      "on-click-right": "playerctl next",
+      "tooltip-format": "{title} - {artist} ({album})\nClick: play/pause | Right-click: next",
+      "tooltip-format-paused": "{title} - {artist} ({album}) [Paused]\nClick: play/pause | Right-click: next"
+    },
+    "custom/todos": {
+      "exec": "~/.config/waybar/scripts/todos.sh",
+      "return-type": "json",
+      "interval": 10,
+      "signal": 11,
+      "on-click": "~/.config/waybar/scripts/todos-toggle.sh",
+      "on-click-right": "omarchy-launch-floating-terminal-with-presentation nvim /home/tsewnai/Documents/vault/todos.md",
+      "tooltip": true
     },
     "custom/weather": {
       "exec": "~/.config/waybar/scripts/weather.sh",
       "interval": 900,
       "tooltip-format": "Weather (updates every 15 min)"
     },
+  "custom/idle-indicator": {
+    "on-click": "omarchy-toggle-idle",
+    "exec": "$OMARCHY_PATH/default/waybar/indicators/idle.sh",
+    "signal": 9,
+    "return-type": "json"
+  },
+  "custom/notification-silencing-indicator": {
+    "on-click": "omarchy-toggle-notification-silencing",
+    "exec": "$OMARCHY_PATH/default/waybar/indicators/notification-silencing.sh",
+    "signal": 10,
+    "return-type": "json"
+  },
+  "custom/notifications": {
+    "exec": "~/.config/waybar/scripts/notifications.sh",
+    "return-type": "json",
+    "interval": 3,
+    "on-click": "makoctl dismiss --all",
+    "tooltip": true
+  },
     "tray": {
       "icon-size": 12,
       "spacing": 17
@@ -271,6 +308,7 @@
       "format-muted": "",
       "format-icons": {
         "headphone": "",
+      "headset": "",
         "default": ["", "", ""]
       }
     }

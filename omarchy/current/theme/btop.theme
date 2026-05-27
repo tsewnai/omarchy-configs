@@ -1,87 +1,92 @@
-# Sage Resilience Theme for Btop
-# Wisdom through resilience - moderate dark with bright insights
+# All graphs and meters can be gradients
+# For single color graphs leave "mid" and "end" variable empty.
+# Use "start" and "end" variables for two color gradient
+# Use "start", "mid" and "end" for three color gradient
 
-# Main background color
-theme[main_bg]="#1c2128"
+# Main background, empty for terminal default, need to be empty if you want transparent background
+theme[main_bg]="#2d353b"
 
 # Main text color
-theme[main_fg]="#e8e6e3"
+theme[main_fg]="#d3c6aa"
 
 # Title color for boxes
-theme[title]="#d4af37"
+theme[title]="#d3c6aa"
 
-# Highlight color for selected items
-theme[hi_fg]="#f4e4bc"
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="#e67e80"
 
-# Selected item background
-theme[selected_bg]="#4a5568"
+# Background color of selected items
+theme[selected_bg]="#3d484d"
 
-# Selected item text
-theme[selected_fg]="#d4af37"
+# Foreground color of selected items
+theme[selected_fg]="#dbbc7f"
 
-# Inactive/disabled elements
-theme[inactive_fg]="#4a5568"
+# Color of inactive/disabled text
+theme[inactive_fg]="#2d353b"
 
-# Process box color
-theme[proc_misc]="#c4b5a0"
+# Color of text appearing on top of graphs, i.e uptime and current network graph scaling
+theme[graph_text]="#d3c6aa"
 
-# CPU box outline
-theme[cpu_box]="#7ec8c8"
+# Misc colors for processes box including mini cpu graphs, details memory graph and details status text
+theme[proc_misc]="#a7c080"
 
-# Memory/Disk box outline
-theme[mem_box]="#7ea67c"
+# Cpu box outline color
+theme[cpu_box]="#3d484d"
 
-# Net box outline
-theme[net_box]="#6b8cae"
+# Memory/disks box outline color
+theme[mem_box]="#3d484d"
 
-# Process box outline
-theme[proc_box]="#9b8aa0"
+# Net up/down box outline color
+theme[net_box]="#3d484d"
 
-# Divider line color
-theme[div_line]="#4a5568"
+# Processes box outline color
+theme[proc_box]="#3d484d"
 
-# Graphs
-theme[graph_text]="#c4b5a0"
+# Box divider line and small boxes line color
+theme[div_line]="#3d484d"
 
-# CPU gradients - from jade (low) through patina to gold (high)
-theme[cpu_start]="#7ea67c"
-theme[cpu_mid]="#7ec8c8"
-theme[cpu_end]="#d4af37"
+# Temperature graph colors
+theme[temp_start]="#a7c080"
+theme[temp_mid]="#dbbc7f"
+theme[temp_end]="#f85552"
 
-# Memory gradients - from jade to temple gold
-theme[mem_start]="#7ea67c"
-theme[mem_mid]="#93c293"
-theme[mem_end]="#d4af37"
+# CPU graph colors
+theme[cpu_start]="#a7c080"
+theme[cpu_mid]="#dbbc7f"
+theme[cpu_end]="#f85552"
 
-# Network gradients - from sky to jade
-theme[download_start]="#6b8cae"
-theme[download_mid]="#7ec8c8"
-theme[download_end]="#7ea67c"
+# Mem/Disk free meter
+theme[free_start]="#f85552"
+theme[free_mid]="#dbbc7f"
+theme[free_end]="#a7c080"
 
-theme[upload_start]="#9b8aa0"
-theme[upload_mid]="#6b8cae"
-theme[upload_end]="#7ec8c8"
+# Mem/Disk cached meter
+theme[cached_start]="#7fbbb3"
+theme[cached_mid]="#83c092"
+theme[cached_end]="#a7c080"
 
-# Process gradients - temple colors
-theme[process_start]="#7ea67c"
-theme[process_mid]="#7ec8c8"
-theme[process_end]="#9b8aa0"
+# Mem/Disk available meter
+theme[available_start]="#f85552"
+theme[available_mid]="#dbbc7f"
+theme[available_end]="#a7c080"
 
-# Temperature gradients - from cool stone to warm terracotta
-theme[temp_start]="#6b8cae"
-theme[temp_mid]="#d4af37"
-theme[temp_end]="#cd9575"
+# Mem/Disk used meter
+theme[used_start]="#a7c080"
+theme[used_mid]="#dbbc7f"
+theme[used_end]="#f85552"
 
-# Battery gradient - jade to gold
-theme[battery_start]="#7ea67c"
-theme[battery_mid]="#c4b5a0"
-theme[battery_end]="#d4af37"
+# Download graph colors
+theme[download_start]="#a7c080"
+theme[download_mid]="#83c092"
+theme[download_end]="#7fbbb3"
 
-# Clock color
-theme[clock]="#f4e4bc"
+# Upload graph colors
+theme[upload_start]="#dbbc7f"
+theme[upload_mid]="#e69875"
+theme[upload_end]="#e67e80"
 
-# Input text color
-theme[input_text]="#f4e4bc"
+# Process box color gradient for threads, mem and cpu usage
+theme[process_start]="#a7c080"
+theme[process_mid]="#e67e80"
+theme[process_end]="#f85552"
 
-# Error text color
-theme[error_text]="#cd9575"
