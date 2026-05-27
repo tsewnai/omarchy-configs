@@ -14,6 +14,7 @@ CONFIGS=(
     walker
     git
     omarchy
+    tmux
 )
 
 for config in "${CONFIGS[@]}"; do
